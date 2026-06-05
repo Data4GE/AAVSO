@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Visual Voting Lobby - ArcadeAnvil</title>
+  <title>Visual Voting Lobby - Auto Eject</title>
   <style>
     *{box-sizing:border-box}
     :root{--site-top:#27384c;--site-mid:#111820;--site-bottom:#090d12;--site-text:#eef6ff;--topbar-bg:#101722cc;--topbar-border:#33465e;--panel-a:#9ec1e1;--panel-b:#d1e5f7;--panel-border:#596673;--panel-text:#24334a;--accent:#ffd15d;--button-bg:#d7e8fa;--button-text:#142033;--card-bg:#edf6ff;--admin-card-bg:#e9f4ff;--danger-bg:#ff9d9d;--good-bg:#a8f3bd;--warn-bg:#ffd15d}
@@ -21,7 +21,7 @@
 <body>
   <div class="app">
     <header class="topbar">
-      <div class="brand"><span class="shiplight"></span>DataForges - Visual Voting</div>
+      <div class="brand"><span class="shiplight"></span>Visual Voting</div>
       <nav>
         <button id="playTab" class="active">Voting Screen</button>
         <button id="adminTab">Admin Users</button>
@@ -86,6 +86,8 @@
           <span id="modeHelp" title="Game mode information">ⓘ</span>
         </label>
         <label><strong>Vote time</strong> <input id="voteSeconds" type="number" min="10" max="600" step="5" value="60" style="width:100px"></label>
+        <label><strong>Sounds</strong> <input id="soundsEnabled" type="checkbox" checked style="width:auto"></label>
+        <label><strong>Volume</strong> <input id="soundVolume" type="range" min="0" max="100" value="70" style="width:130px"></label>
       </div>
       <div id="modeDescription" style="background:#eef7ff;border:3px solid #596673;border-radius:12px;padding:12px 16px;margin-bottom:18px;color:#172437">
         <strong>Mode Description</strong>
@@ -119,9 +121,20 @@
           <label><strong>Button Text</strong><input data-palette-field="buttonText" type="color"></label>
           <label><strong>Player Card</strong><input data-palette-field="cardBg" type="color"></label>
         </div>
+        <h3 style="margin:16px 0 10px">Custom Sound Effects</h3>
+        <p style="margin-top:0">Upload MP3, WAV or OGG files. They are saved inside browser storage and included in Export settings.</p>
+        <div class="admin-grid">
+          <label><strong>Call Meeting Sound</strong><input data-sound-field="call" type="file" accept="audio/*"><button data-test-sound="call" type="button">▶ Test</button></label>
+          <label><strong>Start Vote Sound</strong><input data-sound-field="start" type="file" accept="audio/*"><button data-test-sound="start" type="button">▶ Test</button></label>
+          <label><strong>Vote Cast Sound</strong><input data-sound-field="vote" type="file" accept="audio/*"><button data-test-sound="vote" type="button">▶ Test</button></label>
+          <label><strong>Reveal / End Sound</strong><input data-sound-field="reveal" type="file" accept="audio/*"><button data-test-sound="reveal" type="button">▶ Test</button></label>
+          <label><strong>Elimination Sound</strong><input data-sound-field="eliminate" type="file" accept="audio/*"><button data-test-sound="eliminate" type="button">▶ Test</button></label>
+          <label><strong>Reset Sound</strong><input data-sound-field="reset" type="file" accept="audio/*"><button data-test-sound="reset" type="button">▶ Test</button></label>
+        </div>
         <div class="admin-actions">
           <button id="saveCustomThemeBtn" class="good">Save Custom Theme</button>
           <button id="copyCurrentThemeBtn">Copy Current Theme</button>
+          <button id="clearCustomSoundsBtn" class="danger">Clear Custom Sounds</button>
         </div>
       </div>
 
@@ -146,6 +159,7 @@
       amongus: {
         name:'Among Us',
         palette:{siteTop:'#27384c',siteMid:'#111820',siteBottom:'#090d12',siteText:'#eef6ff',topbar:'#101722cc',topbarBorder:'#33465e',panelA:'#9ec1e1',panelB:'#d1e5f7',panelBorder:'#596673',panelText:'#24334a',accent:'#ffd15d',buttonBg:'#d7e8fa',buttonText:'#142033',cardBg:'#edf6ff',adminCardBg:'#e9f4ff'},
+        sounds:{preset:'sciFi'},
         title:'Emergency Meeting',
         vote:'Vote',
         skip:'Skip Voting',
@@ -158,6 +172,7 @@
       mafia: {
         name:'Mafia',
         palette:{siteTop:'#3a0f13',siteMid:'#14080a',siteBottom:'#050303',siteText:'#fff1e8',topbar:'#160608dd',topbarBorder:'#7d1b24',panelA:'#2b1013',panelB:'#5b1b20',panelBorder:'#c99b4a',panelText:'#fff1e8',accent:'#c99b4a',buttonBg:'#f0d39b',buttonText:'#2b1013',cardBg:'#fff1e8',adminCardBg:'#fff6df'},
+        sounds:{preset:'mafia'},
         title:'Town Meeting',
         vote:'Accuse',
         skip:'Abstain',
@@ -170,6 +185,7 @@
       werewolf: {
         name:'Werewolf',
         palette:{siteTop:'#0c0c4f',siteMid:'#101624',siteBottom:'#05070d',siteText:'#e8f0ff',topbar:'#0b1020dd',topbarBorder:'#7f8ead',panelA:'#5f6f8f',panelB:'#c8d4e8',panelBorder:'#2d3854',panelText:'#172033',accent:'#d9e7ff',buttonBg:'#dce8ff',buttonText:'#172033',cardBg:'#edf3ff',adminCardBg:'#eef4ff'},
+        sounds:{preset:'werewolf'},
         title:'Village Gathering',
         vote:'Lynch',
         skip:'Spare Everyone',
@@ -182,6 +198,7 @@
       zombie: {
         name:'Zombie Outbreak',
         palette:{siteTop:'#1e3b24',siteMid:'#0f1d12',siteBottom:'#050805',siteText:'#eaffea',topbar:'#071108dd',topbarBorder:'#377a3e',panelA:'#5b8752',panelB:'#c8e1b8',panelBorder:'#31572c',panelText:'#102110',accent:'#9dff68',buttonBg:'#d7f7c4',buttonText:'#102110',cardBg:'#eefce7',adminCardBg:'#efffe9'},
+        sounds:{preset:'zombie'},
         title:'Infection Report',
         vote:'Quarantine',
         skip:'Ignore Report',
@@ -194,6 +211,7 @@
       corporate: {
         name:'Corporate',
         palette:{siteTop:'#dce5ef',siteMid:'#6f8092',siteBottom:'#2b3540',siteText:'#f6fbff',topbar:'#253241dd',topbarBorder:'#8fa4ba',panelA:'#dce8f4',panelB:'#ffffff',panelBorder:'#7d8fa3',panelText:'#172437',accent:'#6eb6ff',buttonBg:'#e7f2ff',buttonText:'#172437',cardBg:'#f7fbff',adminCardBg:'#ffffff'},
+        sounds:{preset:'corporate'},
         title:'Board Meeting',
         vote:'Remove',
         skip:'Abstain',
@@ -206,6 +224,7 @@
       reality: {
         name:'Reality Show',
         palette:{siteTop:'#5e1a64',siteMid:'#241031',siteBottom:'#08040c',siteText:'#fff0ff',topbar:'#220d2edd',topbarBorder:'#ff8cf4',panelA:'#ff9de8',panelB:'#ffe7fb',panelBorder:'#9d45b8',panelText:'#3d1748',accent:'#ffe15c',buttonBg:'#fff0fb',buttonText:'#3d1748',cardBg:'#fff3fc',adminCardBg:'#fff7fd'},
+        sounds:{preset:'reality'},
         title:'Elimination Ceremony',
         vote:'Vote Off',
         skip:'Save Everyone',
@@ -224,7 +243,8 @@
         caller:'Caller',
         dead:'Out',
         eliminated:'was removed',
-        none:'Nobody was removed.'
+        none:'Nobody was removed.',
+        sounds:{preset:'custom', call:null, start:null, vote:null, reveal:null, eliminate:null, reset:null}
       }
     };
 
@@ -265,6 +285,8 @@
     let votingSeconds = Number(localStorage.getItem('visualVoteSeconds') || 60);
     let currentTheme = localStorage.getItem('visualVoteTheme') || 'amongus';
     let currentMode = localStorage.getItem('visualVoteMode') || 'classic';
+    let soundsEnabled = localStorage.getItem('visualVoteSoundsEnabled') !== 'false';
+    let soundVolume = Number(localStorage.getItem('visualVoteSoundVolume') || 70);
     let secondsLeft = votingSeconds;
     let timerId = null;
     let resultText = '';
@@ -274,6 +296,8 @@
       localStorage.setItem('visualVoteSeconds', String(votingSeconds));
       localStorage.setItem('visualVoteTheme', currentTheme);
       localStorage.setItem('visualVoteMode', currentMode);
+      localStorage.setItem('visualVoteSoundsEnabled', String(soundsEnabled));
+      localStorage.setItem('visualVoteSoundVolume', String(soundVolume));
     };
     const alivePlayers = () => players.filter(p => !p.dead);
     const currentPlayer = () => players.find(p => p.id === selectedPlayerId);
@@ -285,6 +309,110 @@
       if(currentMode === 'secret') return false;
       if(currentMode === 'hidden') return !meetingActive;
       return showResults;
+    }
+
+
+    let audioContext = null;
+
+    function getSoundPresetName(){
+      return theme().sounds?.preset || currentTheme || 'sciFi';
+    }
+
+    function getCustomSound(eventName){
+      return currentTheme === 'custom' ? THEMES.custom.sounds?.[eventName] : null;
+    }
+
+    function playSound(eventName){
+      if(!soundsEnabled) return;
+
+      const customSound = getCustomSound(eventName);
+      if(customSound){
+        const audio = new Audio(customSound);
+        audio.volume = Math.max(0, Math.min(1, soundVolume / 100));
+        audio.play().catch(() => {});
+        return;
+      }
+
+      playGeneratedSound(eventName, getSoundPresetName());
+    }
+
+    function playGeneratedSound(eventName, preset){
+      try{
+        audioContext = audioContext || new (window.AudioContext || window.webkitAudioContext)();
+        const ctx = audioContext;
+        const gain = ctx.createGain();
+        gain.gain.value = Math.max(0.02, Math.min(0.35, soundVolume / 300));
+        gain.connect(ctx.destination);
+
+        const now = ctx.currentTime;
+        const settings = getGeneratedSoundSettings(eventName, preset);
+
+        settings.notes.forEach((note, i) => {
+          const osc = ctx.createOscillator();
+          const noteGain = ctx.createGain();
+          osc.type = settings.type;
+          osc.frequency.setValueAtTime(note, now + i * settings.gap);
+          noteGain.gain.setValueAtTime(0.0001, now + i * settings.gap);
+          noteGain.gain.exponentialRampToValueAtTime(1, now + i * settings.gap + 0.02);
+          noteGain.gain.exponentialRampToValueAtTime(0.0001, now + i * settings.gap + settings.length);
+          osc.connect(noteGain);
+          noteGain.connect(gain);
+          osc.start(now + i * settings.gap);
+          osc.stop(now + i * settings.gap + settings.length + 0.03);
+        });
+      }catch{}
+    }
+
+    function getGeneratedSoundSettings(eventName, preset){
+      const packs = {
+        sciFi:{base:520,type:'square'},
+        mafia:{base:220,type:'triangle'},
+        werewolf:{base:180,type:'sine'},
+        zombie:{base:120,type:'sawtooth'},
+        corporate:{base:660,type:'sine'},
+        reality:{base:740,type:'triangle'},
+        custom:{base:520,type:'square'}
+      };
+      const pack = packs[preset] || packs.sciFi;
+      const patterns = {
+        call:[1, .75, 1, .75],
+        start:[1, 1.25, 1.5],
+        vote:[1.5],
+        reveal:[.75, 1, 1.25, 1.6],
+        eliminate:[1, .7, .45],
+        reset:[1.4, 1, 1.4]
+      };
+      return {
+        type:pack.type,
+        notes:(patterns[eventName] || [1]).map(x => pack.base * x),
+        gap:eventName === 'reveal' ? 0.18 : 0.12,
+        length:eventName === 'call' ? 0.18 : 0.12
+      };
+    }
+
+    function uploadCustomSound(eventName, file){
+      if(!file) return;
+      if(!file.type.startsWith('audio/')){
+        alert('Please choose an audio file.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        THEMES.custom.sounds = {...(THEMES.custom.sounds || {preset:'custom'}), preset:'custom', [eventName]: reader.result};
+        localStorage.setItem('visualVoteCustomTheme', JSON.stringify(THEMES.custom));
+        currentTheme = 'custom';
+        render();
+      };
+      reader.onerror = () => alert('Could not read that sound file.');
+      reader.readAsDataURL(file);
+    }
+
+    function clearCustomSounds(){
+      if(!confirm('Clear all custom uploaded sound effects?')) return;
+      THEMES.custom.sounds = {preset:'custom', call:null, start:null, vote:null, reveal:null, eliminate:null, reset:null};
+      localStorage.setItem('visualVoteCustomTheme', JSON.stringify(THEMES.custom));
+      render();
     }
 
     function applySitePalette(){
@@ -316,6 +444,7 @@
       document.querySelectorAll('[data-palette-field]').forEach(input => {
         custom.palette[input.dataset.paletteField] = input.value || custom.palette[input.dataset.paletteField];
       });
+      custom.sounds = {...(THEMES.custom.sounds || {preset:'custom'}), preset:'custom'};
       custom.name = 'Custom';
       THEMES.custom = custom;
       localStorage.setItem('visualVoteCustomTheme', JSON.stringify(custom));
@@ -341,6 +470,12 @@
       document.querySelectorAll('[data-palette-field]').forEach(input => {
         input.value = (custom.palette && custom.palette[input.dataset.paletteField]) || '#ffffff';
       });
+      document.querySelectorAll('[data-sound-field]').forEach(input => {
+        input.onchange = () => uploadCustomSound(input.dataset.soundField, input.files[0]);
+      });
+      document.querySelectorAll('[data-test-sound]').forEach(btn => {
+        btn.onclick = () => playSound(btn.dataset.testSound);
+      });
     }
 
     function render(){
@@ -359,6 +494,8 @@
       document.querySelector('.status-row .status-card:nth-child(3) .status-label').textContent = t.caller;
       document.getElementById('callerDisplay').textContent = players.find(p=>p.id===calledById)?.name || '-';
       document.getElementById('voteSeconds').value = votingSeconds;
+      document.getElementById('soundsEnabled').checked = soundsEnabled;
+      document.getElementById('soundVolume').value = soundVolume;
       document.getElementById('themeSelect').value = currentTheme;
       document.getElementById('modeSelect').value = currentMode;
       document.getElementById('modeDisplay').textContent = MODES[currentMode] || 'Classic';
@@ -376,7 +513,7 @@
       const grid = document.getElementById('playerGrid');
       grid.innerHTML = players.map(p => playerTile(p)).join('') + skipTile();
       grid.querySelectorAll('[data-vote]').forEach(btn => btn.onclick = () => castVote(btn.dataset.vote));
-      grid.querySelectorAll('[data-call]').forEach(btn => btn.onclick = () => { calledById = btn.dataset.call; emergencyFlash(); render(); });
+      grid.querySelectorAll('[data-call]').forEach(btn => btn.onclick = () => { calledById = btn.dataset.call; playSound('call'); emergencyFlash(); render(); });
     }
 
     function playerTile(p){
@@ -416,6 +553,7 @@
 
     function castVote(targetId){
       if(!meetingActive || currentPlayer()?.dead) return;
+      playSound('vote');
       players = players.map(p => p.id === selectedPlayerId ? {...p, voteFor: targetId} : p);
       if(voteCount() >= alivePlayers().length) endVote();
       render();
@@ -425,6 +563,7 @@
       clearInterval(timerId);
       resultText = '';
       meetingActive = true;
+      playSound('start');
       secondsLeft = votingSeconds;
       players = players.map(p => ({...p, voteFor:null}));
       emergencyFlash();
@@ -442,10 +581,12 @@
       meetingActive = false;
       secondsLeft = Math.max(0, secondsLeft);
 
+      playSound('reveal');
       const outcome = calculateResult();
 
       const ejectedIds = outcome.ejectedIds?.length ? outcome.ejectedIds : (outcome.ejectedId ? [outcome.ejectedId] : []);
       if(ejectedIds.length){
+        playSound('eliminate');
         players = players.map(p =>
           ejectedIds.includes(p.id) ? {...p, dead:true, voteFor:null} : p
         );
@@ -506,6 +647,7 @@
       meetingActive = false;
       secondsLeft = votingSeconds;
       resultText = '';
+      playSound('reset');
       players = players.map(p => ({...p, voteFor:null, dead:false}));
       selectedPlayerId = alivePlayers()[0]?.id || players[0]?.id;
       if(players.find(p => p.id === calledById)?.dead) calledById = selectedPlayerId;
@@ -526,6 +668,8 @@
       calledById = players[0]?.id;
       anonymous = false;
       showResults = true;
+      soundsEnabled = true;
+      soundVolume = 70;
 
       currentTheme = 'amongus';
       currentMode = 'classic';
@@ -534,7 +678,9 @@
       localStorage.removeItem('visualVoteTheme');
       localStorage.removeItem('visualVoteMode');
       localStorage.removeItem('visualVoteCustomTheme');
-      THEMES.custom = {name:'Custom', title:'Custom Meeting', vote:'Vote', skip:'Skip', skipAction:'Skip', caller:'Caller', dead:'Out', eliminated:'was removed', none:'Nobody was removed.', palette:{siteTop:'#27384c',siteMid:'#111820',siteBottom:'#090d12',siteText:'#eef6ff',topbar:'#101722cc',topbarBorder:'#33465e',panelA:'#9ec1e1',panelB:'#d1e5f7',panelBorder:'#596673',panelText:'#24334a',accent:'#ffd15d',buttonBg:'#d7e8fa',buttonText:'#142033',cardBg:'#edf6ff',adminCardBg:'#e9f4ff'}};
+      localStorage.removeItem('visualVoteSoundsEnabled');
+      localStorage.removeItem('visualVoteSoundVolume');
+      THEMES.custom = {name:'Custom', title:'Custom Meeting', vote:'Vote', skip:'Skip', skipAction:'Skip', caller:'Caller', dead:'Out', eliminated:'was removed', none:'Nobody was removed.', palette:{siteTop:'#27384c',siteMid:'#111820',siteBottom:'#090d12',siteText:'#eef6ff',topbar:'#101722cc',topbarBorder:'#33465e',panelA:'#9ec1e1',panelB:'#d1e5f7',panelBorder:'#596673',panelText:'#24334a',accent:'#ffd15d',buttonBg:'#d7e8fa',buttonText:'#142033',cardBg:'#edf6ff',adminCardBg:'#e9f4ff'}, sounds:{preset:'custom', call:null, start:null, vote:null, reveal:null, eliminate:null, reset:null}};
 
       render();
     }
@@ -636,6 +782,8 @@
         calledById,
         anonymous,
         showResults,
+        soundsEnabled,
+        soundVolume,
         meetingActive:false,
         votingSeconds,
         secondsLeft:votingSeconds,
@@ -698,6 +846,8 @@
           calledById = players.find(p => p.id === data.calledById && !p.dead)?.id || selectedPlayerId;
           anonymous = !!data.anonymous;
           showResults = data.showResults !== false;
+          soundsEnabled = data.soundsEnabled !== false;
+          soundVolume = Math.max(0, Math.min(100, Number(data.soundVolume) || 70));
           meetingActive = false;
           resultText = '';
 
@@ -743,6 +893,7 @@
     document.getElementById('importSettingsFile').onchange = e => importSettingsFromFile(e.target.files[0]);
     document.getElementById('saveCustomThemeBtn').onclick = saveCustomTheme;
     document.getElementById('copyCurrentThemeBtn').onclick = copyCurrentTheme;
+    document.getElementById('clearCustomSoundsBtn').onclick = clearCustomSounds;
     document.getElementById('adminResetDefaultsBtn').onclick = resetToDefaults;
     document.getElementById('themeSelect').onchange = e => {
       currentTheme = e.target.value;
@@ -754,6 +905,8 @@
       if(currentMode === 'hidden' || currentMode === 'secret') showResults = false;
       render();
     };
+    document.getElementById('soundsEnabled').onchange = e => { soundsEnabled = e.target.checked; save(); render(); };
+    document.getElementById('soundVolume').oninput = e => { soundVolume = Number(e.target.value) || 70; save(); };
     document.getElementById('voteSeconds').onchange = e => {
       votingSeconds = Math.max(10, Math.min(600, Number(e.target.value) || 60));
       if(!meetingActive) secondsLeft = votingSeconds;
