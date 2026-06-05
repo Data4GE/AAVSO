@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visual Voting Lobby - ArcadeAnvil</title>
+  <style>
+    *{box-sizing:border-box}
+    :root{--site-top:#27384c;--site-mid:#111820;--site-bottom:#090d12;--site-text:#eef6ff;--topbar-bg:#101722cc;--topbar-border:#33465e;--panel-a:#9ec1e1;--panel-b:#d1e5f7;--panel-border:#596673;--panel-text:#24334a;--accent:#ffd15d;--button-bg:#d7e8fa;--button-text:#142033;--card-bg:#edf6ff;--admin-card-bg:#e9f4ff;--danger-bg:#ff9d9d;--good-bg:#a8f3bd;--warn-bg:#ffd15d}
+    body{margin:0;font-family:'Trebuchet MS',Arial,sans-serif;background:radial-gradient(circle at top,var(--site-top),var(--site-mid) 60%,var(--site-bottom));color:var(--site-text)}
+    .app{min-height:100vh}.topbar{min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:14px 26px;background:var(--topbar-bg);border-bottom:3px solid var(--topbar-border)}.brand{font-size:28px;font-weight:900;text-shadow:2px 2px #000}.shiplight{display:inline-block;width:18px;height:18px;background:#d53232;border-radius:50%;box-shadow:0 0 12px #ff7070;margin-right:10px}
+    button,select,input{font:inherit}button{border:0;border-radius:10px;background:var(--button-bg);color:var(--button-text);font-weight:800;padding:10px 14px;cursor:pointer;box-shadow:inset 0 -3px #8aa3bf}button:disabled{opacity:.45;cursor:not-allowed}nav button{margin-left:10px}.active{background:var(--accent)}.danger{background:var(--danger-bg);color:#4a0808}.good{background:var(--good-bg);color:#10351c}.warn{background:var(--warn-bg);color:#3c2a00}
+    .meeting-shell{display:flex;justify-content:center;padding:28px}.meeting-panel{width:min(1120px,96vw);background:linear-gradient(135deg,var(--panel-a),var(--panel-b));border:8px solid var(--panel-border);border-radius:16px;color:var(--panel-text);box-shadow:0 18px 45px #0009,inset 0 0 0 4px #2b3540;overflow:hidden}.panel-title{text-align:center;font-size:34px;font-weight:900;padding:18px;text-shadow:2px 2px #fff}.meeting-meta{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;padding:0 18px 18px}.meeting-meta button{display:flex;gap:6px;align-items:center}.meeting-meta select{width:auto;min-width:160px;border:3px solid #7e95ab;border-radius:10px;padding:9px;background:white}
+    .status-row{display:flex;gap:14px;align-items:stretch;justify-content:center;flex-wrap:wrap;padding:0 18px 18px}.status-card{background:#eef7ff;border:4px solid #596673;border-radius:14px;padding:12px 18px;min-width:170px;text-align:center;box-shadow:0 5px 0 #6b8094}.status-label{font-size:13px;text-transform:uppercase;font-weight:900;opacity:.7}.status-value{font-size:28px;font-weight:900}.result-banner{margin:0 22px 18px;padding:14px 18px;background:#101722;color:#fff;border:4px solid #ffd15d;border-radius:14px;text-align:center;font-size:26px;font-weight:900;box-shadow:0 8px 0 #6b8094}.hidden{display:none!important}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding:22px}.tile{position:relative;min-height:270px;border-radius:14px;background:var(--card-bg);border:5px solid var(--crew,#789);box-shadow:inset 0 0 0 3px #fff,0 8px 0 #6b8094;padding:15px;text-align:center;overflow:hidden}.tile.self{outline:5px solid #ffd15d}.tile.dead{filter:grayscale(.85);opacity:.72}.dead-stamp{position:absolute;left:12px;top:12px;font-size:30px;filter:drop-shadow(2px 2px white)}.colour-pill{display:inline-block;background:var(--crew);color:var(--crewText);padding:5px 14px;border-radius:999px;font-weight:900}.avatar{width:112px;height:112px;object-fit:cover;border-radius:18px;margin:14px auto 8px;display:block;border:5px solid #2b3540;background:#fff}.name{font-size:24px;font-weight:900;text-shadow:1px 1px #fff;margin:8px}.mega{position:absolute;right:14px;top:14px;font-size:34px;filter:drop-shadow(2px 2px white)}.actions{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}.vote-dots{min-height:30px;margin-top:14px}.vote-dots span{display:inline-block;width:24px;height:24px;border-radius:50%;border:3px solid #263342;margin:2px;box-shadow:inset 0 4px #ffffff66}.skip{border-color:#56616e}.skip-icon{font-size:74px;color:#d72d2d;font-weight:900;margin-top:24px}
+    .admin{padding:28px}.admin-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:14px;flex-wrap:wrap}.admin-head h1{margin:0;font-size:34px}.admin-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}.admin-card{background:var(--admin-card-bg);color:#172437;border-radius:16px;border:5px solid var(--crew);padding:16px;box-shadow:0 10px 0 #56616e}.admin-card img{width:95px;height:95px;object-fit:cover;border-radius:16px;border:4px solid #263342;display:block;margin:0 auto 12px;background:white}.admin-card label{display:block;font-weight:900;margin:10px 0}.admin-card input,.admin-card select{width:100%;border:3px solid #7e95ab;border-radius:10px;padding:9px;background:white}.admin-actions{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}.check-row{display:flex;align-items:center;gap:8px;font-weight:900;margin-top:10px}.check-row input{width:auto}
+    .flash{animation:flashRed .9s ease-in-out 3}@keyframes flashRed{0%,100%{box-shadow:0 18px 45px #0009,inset 0 0 0 4px #2b3540}50%{box-shadow:0 0 45px #ff2020,inset 0 0 0 8px #d53232}}
+    @media(max-width:600px){.topbar{justify-content:center}.brand{font-size:23px}.panel-title{font-size:28px}.meeting-shell,.admin{padding:12px}.grid{padding:12px;grid-template-columns:1fr}.tile{min-height:240px}.status-card{min-width:130px}.result-banner{font-size:20px}}
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand"><span class="shiplight"></span>DataForges - Visual Voting</div>
+      <nav>
+        <button id="playTab" class="active">Voting Screen</button>
+        <button id="adminTab">Admin Users</button>
+      </nav>
+    </header>
+
+    <main id="playView" class="meeting-shell">
+      <section id="meetingPanel" class="meeting-panel">
+        <div class="panel-title" id="meetingTitle">Emergency Meeting</div>
+        <div class="meeting-meta">
+          <span>Playing as</span>
+          <select id="selectedPlayer"></select>
+          <button id="startBtn" class="good">▶ Start vote</button>
+          <button id="endBtn" class="warn">■ End vote</button>
+          <button id="anonymousBtn">👁 Anonymous</button>
+          <button id="resultsBtn">Hide votes</button>
+          <button id="resetBtn">↻ Reset</button>
+        </div>
+        <div class="status-row">
+          <div class="status-card"><div class="status-label">Timer</div><div id="timerDisplay" class="status-value">60</div></div>
+          <div class="status-card"><div class="status-label">Votes Cast</div><div id="votesDisplay" class="status-value">0/4</div></div>
+          <div class="status-card"><div class="status-label">Meeting Caller</div><div id="callerDisplay" class="status-value">-</div></div>
+          <div class="status-card"><div class="status-label">Mode</div><div id="modeDisplay" class="status-value" style="font-size:20px">Classic</div></div>
+        </div>
+        <div id="resultBanner" class="result-banner hidden"></div>
+        <div id="playerGrid" class="grid"></div>
+      </section>
+    </main>
+
+    <main id="adminView" class="admin hidden">
+      <div class="admin-head">
+        <h1>Admin / Users</h1>
+        <div>
+          <button id="randomColoursBtn">🎲 Randomise colours</button>
+          <button id="exportSettingsBtn" class="good">Export settings</button>
+          <button id="importSettingsBtn">Import settings</button>
+          <input id="importSettingsFile" type="file" accept="application/json,.json" class="hidden">
+          <button id="adminResetDefaultsBtn" class="danger">Reset to defaults</button>
+          <button id="addUserBtn">+ Add user</button>
+        </div>
+      </div>
+      <div class="meeting-meta" style="justify-content:flex-start;padding:0 0 18px">
+        <label><strong>Theme</strong>
+          <select id="themeSelect">
+            <option value="amongus">Among Us</option>
+            <option value="mafia">Mafia</option>
+            <option value="werewolf">Werewolf</option>
+            <option value="zombie">Zombie Outbreak</option>
+            <option value="corporate">Corporate</option>
+            <option value="reality">Reality Show</option>
+            <option value="custom">Custom</option>
+          </select>
+        </label>
+        <label><strong>Game Mode</strong>
+          <select id="modeSelect">
+            <option value="classic">Classic</option>
+            <option value="hidden">Hidden Votes</option>
+            <option value="secret">Secret Ballot</option>
+            <option value="double">Double Vote Caller</option>
+            <option value="sudden">Sudden Death</option>
+          </select>
+          <span id="modeHelp" title="Game mode information">ⓘ</span>
+        </label>
+        <label><strong>Vote time</strong> <input id="voteSeconds" type="number" min="10" max="600" step="5" value="60" style="width:100px"></label>
+      </div>
+      <div id="modeDescription" style="background:#eef7ff;border:3px solid #596673;border-radius:12px;padding:12px 16px;margin-bottom:18px;color:#172437">
+        <strong>Mode Description</strong>
+        <div id="modeDescriptionText">Standard voting. Highest vote count is eliminated.</div>
+      </div>
+
+      <div id="customThemeEditor" style="background:#eef7ff;border:3px solid #596673;border-radius:12px;padding:14px 16px;margin-bottom:18px;color:#172437">
+        <h2 style="margin:0 0 10px">Custom Theme Wording</h2>
+        <div class="admin-grid">
+          <label><strong>Meeting Title</strong><input data-theme-field="title" placeholder="Emergency Meeting"></label>
+          <label><strong>Vote Button</strong><input data-theme-field="vote" placeholder="Vote"></label>
+          <label><strong>Skip Title</strong><input data-theme-field="skip" placeholder="Skip Voting"></label>
+          <label><strong>Skip Button</strong><input data-theme-field="skipAction" placeholder="Vote Skip"></label>
+          <label><strong>Caller Label</strong><input data-theme-field="caller" placeholder="Meeting Caller"></label>
+          <label><strong>Dead Label</strong><input data-theme-field="dead" placeholder="Dead"></label>
+          <label><strong>Elimination Text</strong><input data-theme-field="eliminated" placeholder="was ejected"></label>
+          <label><strong>No Elimination Text</strong><input data-theme-field="none" placeholder="Nobody was ejected."></label>
+        </div>
+        <h3 style="margin:16px 0 10px">Custom Site Colours</h3>
+        <div class="admin-grid">
+          <label><strong>Top Background</strong><input data-palette-field="siteTop" type="color"></label>
+          <label><strong>Main Background</strong><input data-palette-field="siteMid" type="color"></label>
+          <label><strong>Bottom Background</strong><input data-palette-field="siteBottom" type="color"></label>
+          <label><strong>Site Text</strong><input data-palette-field="siteText" type="color"></label>
+          <label><strong>Panel Colour 1</strong><input data-palette-field="panelA" type="color"></label>
+          <label><strong>Panel Colour 2</strong><input data-palette-field="panelB" type="color"></label>
+          <label><strong>Panel Border</strong><input data-palette-field="panelBorder" type="color"></label>
+          <label><strong>Panel Text</strong><input data-palette-field="panelText" type="color"></label>
+          <label><strong>Accent</strong><input data-palette-field="accent" type="color"></label>
+          <label><strong>Button Background</strong><input data-palette-field="buttonBg" type="color"></label>
+          <label><strong>Button Text</strong><input data-palette-field="buttonText" type="color"></label>
+          <label><strong>Player Card</strong><input data-palette-field="cardBg" type="color"></label>
+        </div>
+        <div class="admin-actions">
+          <button id="saveCustomThemeBtn" class="good">Save Custom Theme</button>
+          <button id="copyCurrentThemeBtn">Copy Current Theme</button>
+        </div>
+      </div>
+
+      <div id="adminGrid" class="admin-grid"></div>
+    </main>
+  </div>
+
+  <script>
+    const COLOURS = [
+      { name:'Red', hex:'#c51111', text:'#fff' }, { name:'Blue', hex:'#132ed1', text:'#fff' },
+      { name:'Green', hex:'#117f2d', text:'#fff' }, { name:'Pink', hex:'#ed54ba', text:'#fff' },
+      { name:'Orange', hex:'#ef7d0d', text:'#fff' }, { name:'Yellow', hex:'#f5f557', text:'#222' },
+      { name:'Black', hex:'#3f474e', text:'#fff' }, { name:'White', hex:'#d6e0f0', text:'#222' },
+      { name:'Purple', hex:'#6b2fbb', text:'#fff' }, { name:'Brown', hex:'#71491e', text:'#fff' },
+      { name:'Cyan', hex:'#38fedb', text:'#123' }, { name:'Lime', hex:'#50ef39', text:'#123' },
+      { name:'Maroon', hex:'#6b0000', text:'#fff' }, { name:'Rose', hex:'#ffbac9', text:'#222' },
+      { name:'Banana', hex:'#ffffbe', text:'#222' }, { name:'Gray', hex:'#708496', text:'#fff' },
+      { name:'Tan', hex:'#9f9989', text:'#222' }, { name:'Coral', hex:'#ec7578', text:'#fff' }
+    ];
+
+    const THEMES = {
+      amongus: {
+        name:'Among Us',
+        palette:{siteTop:'#27384c',siteMid:'#111820',siteBottom:'#090d12',siteText:'#eef6ff',topbar:'#101722cc',topbarBorder:'#33465e',panelA:'#9ec1e1',panelB:'#d1e5f7',panelBorder:'#596673',panelText:'#24334a',accent:'#ffd15d',buttonBg:'#d7e8fa',buttonText:'#142033',cardBg:'#edf6ff',adminCardBg:'#e9f4ff'},
+        title:'Emergency Meeting',
+        vote:'Vote',
+        skip:'Skip Voting',
+        skipAction:'Vote Skip',
+        caller:'Meeting Caller',
+        dead:'Dead',
+        eliminated:'was ejected',
+        none:'Nobody was ejected.'
+      },
+      mafia: {
+        name:'Mafia',
+        palette:{siteTop:'#3a0f13',siteMid:'#14080a',siteBottom:'#050303',siteText:'#fff1e8',topbar:'#160608dd',topbarBorder:'#7d1b24',panelA:'#2b1013',panelB:'#5b1b20',panelBorder:'#c99b4a',panelText:'#fff1e8',accent:'#c99b4a',buttonBg:'#f0d39b',buttonText:'#2b1013',cardBg:'#fff1e8',adminCardBg:'#fff6df'},
+        title:'Town Meeting',
+        vote:'Accuse',
+        skip:'Abstain',
+        skipAction:'Abstain',
+        caller:'Meeting Leader',
+        dead:'Executed',
+        eliminated:'was executed',
+        none:'Nobody was executed.'
+      },
+      werewolf: {
+        name:'Werewolf',
+        palette:{siteTop:'#0c0c4f',siteMid:'#101624',siteBottom:'#05070d',siteText:'#e8f0ff',topbar:'#0b1020dd',topbarBorder:'#7f8ead',panelA:'#5f6f8f',panelB:'#c8d4e8',panelBorder:'#2d3854',panelText:'#172033',accent:'#d9e7ff',buttonBg:'#dce8ff',buttonText:'#172033',cardBg:'#edf3ff',adminCardBg:'#eef4ff'},
+        title:'Village Gathering',
+        vote:'Lynch',
+        skip:'Spare Everyone',
+        skipAction:'Spare',
+        caller:'Village Elder',
+        dead:'Eliminated',
+        eliminated:'was eliminated',
+        none:'Nobody was eliminated.'
+      },
+      zombie: {
+        name:'Zombie Outbreak',
+        palette:{siteTop:'#1e3b24',siteMid:'#0f1d12',siteBottom:'#050805',siteText:'#eaffea',topbar:'#071108dd',topbarBorder:'#377a3e',panelA:'#5b8752',panelB:'#c8e1b8',panelBorder:'#31572c',panelText:'#102110',accent:'#9dff68',buttonBg:'#d7f7c4',buttonText:'#102110',cardBg:'#eefce7',adminCardBg:'#efffe9'},
+        title:'Infection Report',
+        vote:'Quarantine',
+        skip:'Ignore Report',
+        skipAction:'Ignore',
+        caller:'Alert Caller',
+        dead:'Infected',
+        eliminated:'was quarantined',
+        none:'Nobody was quarantined.'
+      },
+      corporate: {
+        name:'Corporate',
+        palette:{siteTop:'#dce5ef',siteMid:'#6f8092',siteBottom:'#2b3540',siteText:'#f6fbff',topbar:'#253241dd',topbarBorder:'#8fa4ba',panelA:'#dce8f4',panelB:'#ffffff',panelBorder:'#7d8fa3',panelText:'#172437',accent:'#6eb6ff',buttonBg:'#e7f2ff',buttonText:'#172437',cardBg:'#f7fbff',adminCardBg:'#ffffff'},
+        title:'Board Meeting',
+        vote:'Remove',
+        skip:'Abstain',
+        skipAction:'Abstain',
+        caller:'Chairperson',
+        dead:'Terminated',
+        eliminated:'was terminated',
+        none:'Nobody was terminated.'
+      },
+      reality: {
+        name:'Reality Show',
+        palette:{siteTop:'#5e1a64',siteMid:'#241031',siteBottom:'#08040c',siteText:'#fff0ff',topbar:'#220d2edd',topbarBorder:'#ff8cf4',panelA:'#ff9de8',panelB:'#ffe7fb',panelBorder:'#9d45b8',panelText:'#3d1748',accent:'#ffe15c',buttonBg:'#fff0fb',buttonText:'#3d1748',cardBg:'#fff3fc',adminCardBg:'#fff7fd'},
+        title:'Elimination Ceremony',
+        vote:'Vote Off',
+        skip:'Save Everyone',
+        skipAction:'Save All',
+        caller:'Host',
+        dead:'Eliminated',
+        eliminated:'was voted off',
+        none:'Nobody was eliminated.'
+      },
+      custom: JSON.parse(localStorage.getItem('visualVoteCustomTheme') || 'null') || {
+        name:'Custom',
+        title:'Custom Meeting',
+        vote:'Vote',
+        skip:'Skip',
+        skipAction:'Skip',
+        caller:'Caller',
+        dead:'Out',
+        eliminated:'was removed',
+        none:'Nobody was removed.'
+      }
+    };
+
+    const MODES = {
+      classic: 'Classic',
+      hidden: 'Hidden Votes',
+      secret: 'Secret Ballot',
+      double: 'Double Vote Caller',
+      sudden: 'Sudden Death'
+    };
+    const MODE_DESCRIPTIONS = {
+      classic:'Standard voting. Highest vote count is eliminated.',
+      hidden:'Vote indicators stay hidden until voting ends.',
+      secret:'Nobody can see vote indicators at any time.',
+      double:'The meeting caller\'s vote counts as two votes.',
+      sudden:'If there is a tie, all tied players are eliminated.'
+    };
+
+
+
+    const APP_EXPORT_VERSION = 1;
+
+    const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+    const defaultAvatar = seed => `https://api.dicebear.com/8.x/thumbs/svg?seed=${encodeURIComponent(seed)}`;
+    const placeholder = seed => `https://api.dicebear.com/8.x/shapes/svg?seed=${encodeURIComponent(seed)}`;
+    const colourByName = name => COLOURS.find(c => c.name === name) || COLOURS[0];
+    const defaultPlayers = () => [1,2,3,4].map((n, i) => ({
+      id: uid(), name:`Player ${n}`, photoUrl:defaultAvatar(`Player ${n}`), colour:COLOURS[i].name, voteFor:null, dead:false
+    }));
+
+    let players = JSON.parse(localStorage.getItem('visualVotePlayers') || 'null') || defaultPlayers();
+    players = players.map((p, i) => ({dead:false, ...p, name:p.name || `Player ${i+1}`}));
+    let selectedPlayerId = players[0]?.id;
+    let calledById = players[0]?.id;
+    let anonymous = false;
+    let showResults = true;
+    let meetingActive = false;
+    let votingSeconds = Number(localStorage.getItem('visualVoteSeconds') || 60);
+    let currentTheme = localStorage.getItem('visualVoteTheme') || 'amongus';
+    let currentMode = localStorage.getItem('visualVoteMode') || 'classic';
+    let secondsLeft = votingSeconds;
+    let timerId = null;
+    let resultText = '';
+
+    const save = () => {
+      localStorage.setItem('visualVotePlayers', JSON.stringify(players));
+      localStorage.setItem('visualVoteSeconds', String(votingSeconds));
+      localStorage.setItem('visualVoteTheme', currentTheme);
+      localStorage.setItem('visualVoteMode', currentMode);
+    };
+    const alivePlayers = () => players.filter(p => !p.dead);
+    const currentPlayer = () => players.find(p => p.id === selectedPlayerId);
+    const votesFor = targetId => players.filter(p => p.voteFor === targetId);
+    const voteCount = () => alivePlayers().filter(p => p.voteFor).length;
+    const theme = () => THEMES[currentTheme] || THEMES.amongus;
+
+    function shouldShowVoteDots(){
+      if(currentMode === 'secret') return false;
+      if(currentMode === 'hidden') return !meetingActive;
+      return showResults;
+    }
+
+    function applySitePalette(){
+      const p = theme().palette || THEMES.amongus.palette;
+      const root = document.documentElement;
+      root.style.setProperty('--site-top', p.siteTop);
+      root.style.setProperty('--site-mid', p.siteMid);
+      root.style.setProperty('--site-bottom', p.siteBottom);
+      root.style.setProperty('--site-text', p.siteText);
+      root.style.setProperty('--topbar-bg', p.topbar);
+      root.style.setProperty('--topbar-border', p.topbarBorder);
+      root.style.setProperty('--panel-a', p.panelA);
+      root.style.setProperty('--panel-b', p.panelB);
+      root.style.setProperty('--panel-border', p.panelBorder);
+      root.style.setProperty('--panel-text', p.panelText);
+      root.style.setProperty('--accent', p.accent);
+      root.style.setProperty('--button-bg', p.buttonBg);
+      root.style.setProperty('--button-text', p.buttonText);
+      root.style.setProperty('--card-bg', p.cardBg);
+      root.style.setProperty('--admin-card-bg', p.adminCardBg || p.cardBg);
+    }
+
+    function saveCustomTheme(){
+      const custom = {...THEMES.custom};
+      document.querySelectorAll('[data-theme-field]').forEach(input => {
+        custom[input.dataset.themeField] = input.value.trim() || custom[input.dataset.themeField];
+      });
+      custom.palette = {...(custom.palette || THEMES.amongus.palette)};
+      document.querySelectorAll('[data-palette-field]').forEach(input => {
+        custom.palette[input.dataset.paletteField] = input.value || custom.palette[input.dataset.paletteField];
+      });
+      custom.name = 'Custom';
+      THEMES.custom = custom;
+      localStorage.setItem('visualVoteCustomTheme', JSON.stringify(custom));
+      currentTheme = 'custom';
+      render();
+    }
+
+    function copyCurrentTheme(){
+      const base = JSON.parse(JSON.stringify({...theme(), name:'Custom'}));
+      THEMES.custom = base;
+      localStorage.setItem('visualVoteCustomTheme', JSON.stringify(base));
+      currentTheme = 'custom';
+      render();
+    }
+
+    function renderCustomThemeEditor(){
+      const editor = document.getElementById('customThemeEditor');
+      editor.classList.toggle('hidden', currentTheme !== 'custom');
+      const custom = THEMES.custom;
+      document.querySelectorAll('[data-theme-field]').forEach(input => {
+        input.value = custom[input.dataset.themeField] || '';
+      });
+      document.querySelectorAll('[data-palette-field]').forEach(input => {
+        input.value = (custom.palette && custom.palette[input.dataset.paletteField]) || '#ffffff';
+      });
+    }
+
+    function render(){
+      const selected = document.getElementById('selectedPlayer');
+      selected.innerHTML = players.map(p => `<option value="${p.id}" ${p.dead?'disabled':''}>${escapeHtml(p.name)} / ${p.colour}${p.dead?' / Dead':''}</option>`).join('');
+      if(!players.find(p=>p.id===selectedPlayerId) || currentPlayer()?.dead) selectedPlayerId = alivePlayers()[0]?.id || players[0]?.id;
+      selected.value = selectedPlayerId || '';
+      const t = theme();
+      applySitePalette();
+      document.getElementById('meetingTitle').textContent = t.title;
+      document.getElementById('anonymousBtn').textContent = anonymous ? '🙈 Anonymous' : '👁 Anonymous';
+      document.getElementById('resultsBtn').textContent = showResults ? 'Hide votes' : 'Show votes';
+      document.getElementById('resultsBtn').disabled = currentMode === 'secret' || currentMode === 'hidden';
+      document.getElementById('timerDisplay').textContent = secondsLeft;
+      document.getElementById('votesDisplay').textContent = `${voteCount()}/${alivePlayers().length}`;
+      document.querySelector('.status-row .status-card:nth-child(3) .status-label').textContent = t.caller;
+      document.getElementById('callerDisplay').textContent = players.find(p=>p.id===calledById)?.name || '-';
+      document.getElementById('voteSeconds').value = votingSeconds;
+      document.getElementById('themeSelect').value = currentTheme;
+      document.getElementById('modeSelect').value = currentMode;
+      document.getElementById('modeDisplay').textContent = MODES[currentMode] || 'Classic';
+      document.getElementById('modeDescriptionText').textContent = MODE_DESCRIPTIONS[currentMode] || '';
+      const banner = document.getElementById('resultBanner');
+      banner.textContent = resultText;
+      banner.classList.toggle('hidden', !resultText);
+      renderCustomThemeEditor();
+      renderPlayers();
+      renderAdmin();
+      save();
+    }
+
+    function renderPlayers(){
+      const grid = document.getElementById('playerGrid');
+      grid.innerHTML = players.map(p => playerTile(p)).join('') + skipTile();
+      grid.querySelectorAll('[data-vote]').forEach(btn => btn.onclick = () => castVote(btn.dataset.vote));
+      grid.querySelectorAll('[data-call]').forEach(btn => btn.onclick = () => { calledById = btn.dataset.call; emergencyFlash(); render(); });
+    }
+
+    function playerTile(p){
+      const c = colourByName(p.colour);
+      const isSelected = selectedPlayerId === p.id;
+      const selectedDead = currentPlayer()?.dead;
+      const votes = votesFor(p.id);
+      const img = anonymous ? placeholder(p.colour) : (p.photoUrl || placeholder(p.name));
+      const displayName = anonymous ? `${p.colour} Player` : escapeHtml(p.name);
+      return `<article class="tile ${isSelected?'self':''} ${p.dead?'dead':''}" style="--crew:${c.hex};--crewText:${c.text}">
+        ${p.dead ? '<div class="dead-stamp">☠</div>' : ''}
+        <div class="colour-pill">${p.colour}</div>
+        ${calledById === p.id ? '<div class="mega">📣</div>' : ''}
+        <img class="avatar" src="${escapeAttr(img)}" onerror="this.src='${placeholder('broken')}'" />
+        <div class="name">${displayName}</div>
+        <div class="actions">
+          <button data-vote="${p.id}" ${isSelected || p.dead || selectedDead || !meetingActive ? 'disabled' : ''}>${theme().vote}</button>
+          <button data-call="${p.id}" ${p.dead || selectedDead ? 'disabled' : ''}>Call</button>
+        </div>
+        ${shouldShowVoteDots() ? voteDots(votes) : ''}
+      </article>`;
+    }
+
+    function skipTile(){
+      const selectedDead = currentPlayer()?.dead;
+      return `<article class="tile skip">
+        <div class="skip-icon">✕</div>
+        <div class="name">${theme().skip}</div>
+        <button data-vote="skip" ${selectedDead || !meetingActive ? 'disabled' : ''}>${theme().skipAction}</button>
+        ${shouldShowVoteDots() ? voteDots(votesFor('skip')) : ''}
+      </article>`;
+    }
+
+    function voteDots(votes){
+      return `<div class="vote-dots">${votes.map(v => `<span title="${escapeAttr(v.name)}" style="background:${colourByName(v.colour).hex}"></span>`).join('')}</div>`;
+    }
+
+    function castVote(targetId){
+      if(!meetingActive || currentPlayer()?.dead) return;
+      players = players.map(p => p.id === selectedPlayerId ? {...p, voteFor: targetId} : p);
+      if(voteCount() >= alivePlayers().length) endVote();
+      render();
+    }
+
+    function startVote(){
+      clearInterval(timerId);
+      resultText = '';
+      meetingActive = true;
+      secondsLeft = votingSeconds;
+      players = players.map(p => ({...p, voteFor:null}));
+      emergencyFlash();
+      timerId = setInterval(() => {
+        secondsLeft--;
+        if(secondsLeft <= 0) endVote();
+        render();
+      }, 1000);
+      render();
+    }
+
+    function endVote(){
+      clearInterval(timerId);
+      timerId = null;
+      meetingActive = false;
+      secondsLeft = Math.max(0, secondsLeft);
+
+      const outcome = calculateResult();
+
+      const ejectedIds = outcome.ejectedIds?.length ? outcome.ejectedIds : (outcome.ejectedId ? [outcome.ejectedId] : []);
+      if(ejectedIds.length){
+        players = players.map(p =>
+          ejectedIds.includes(p.id) ? {...p, dead:true, voteFor:null} : p
+        );
+      }
+
+      resultText = outcome.message;
+      render();
+    }
+
+    function calculateResult(){
+      const t = theme();
+      const weights = {};
+      players.forEach(p => {
+        if(!p.voteFor || p.dead) return;
+        const extra = currentMode === 'double' && p.id === calledById ? 2 : 1;
+        weights[p.voteFor] = (weights[p.voteFor] || 0) + extra;
+      });
+
+      const totals = Object.entries(weights).map(([id, count]) => ({id, count})).filter(x => x.count > 0);
+
+      if(!totals.length){
+        return { message:`No votes were cast. ${t.none}`, ejectedId:null, ejectedIds:[] };
+      }
+
+      totals.sort((a,b) => b.count - a.count);
+      const top = totals[0];
+      const tied = totals.filter(x => x.count === top.count);
+
+      if(top.id === 'skip'){
+        return { message:`${t.skip} won with ${top.count} vote${top.count===1?'':'s'}. ${t.none}`, ejectedId:null, ejectedIds:[] };
+      }
+
+      if(tied.length > 1){
+        if(currentMode === 'sudden'){
+          const ejectedIds = tied.filter(x => x.id !== 'skip').map(x => x.id);
+          const names = ejectedIds.map(id => players.find(p => p.id === id)?.name || 'A player').join(', ');
+          return {
+            message:`Sudden Death: ${names} ${ejectedIds.length === 1 ? t.eliminated : 'were eliminated'} and marked ${t.dead.toLowerCase()}.`,
+            ejectedId:null,
+            ejectedIds
+          };
+        }
+        return { message:`Tie vote. ${t.none}`, ejectedId:null, ejectedIds:[] };
+      }
+
+      const player = players.find(p => p.id === top.id);
+
+      return {
+        message:`${player?.name || 'A player'} ${t.eliminated} with ${top.count} vote${top.count===1?'':'s'} and has been marked ${t.dead.toLowerCase()}.`,
+        ejectedId: top.id,
+        ejectedIds:[top.id]
+      };
+    }
+
+    function resetVotes(){
+      clearInterval(timerId);
+      timerId = null;
+      meetingActive = false;
+      secondsLeft = votingSeconds;
+      resultText = '';
+      players = players.map(p => ({...p, voteFor:null, dead:false}));
+      selectedPlayerId = alivePlayers()[0]?.id || players[0]?.id;
+      if(players.find(p => p.id === calledById)?.dead) calledById = selectedPlayerId;
+      render();
+    }
+
+    function resetToDefaults(){
+      if(!confirm('Reset everything to default players, names, photos, colours, theme, mode, saved custom theme and votes?')) return;
+
+      clearInterval(timerId);
+      timerId = null;
+      meetingActive = false;
+      votingSeconds = 60;
+      secondsLeft = votingSeconds;
+      resultText = '';
+      players = defaultPlayers();
+      selectedPlayerId = players[0]?.id;
+      calledById = players[0]?.id;
+      anonymous = false;
+      showResults = true;
+
+      currentTheme = 'amongus';
+      currentMode = 'classic';
+      localStorage.removeItem('visualVotePlayers');
+      localStorage.removeItem('visualVoteSeconds');
+      localStorage.removeItem('visualVoteTheme');
+      localStorage.removeItem('visualVoteMode');
+      localStorage.removeItem('visualVoteCustomTheme');
+      THEMES.custom = {name:'Custom', title:'Custom Meeting', vote:'Vote', skip:'Skip', skipAction:'Skip', caller:'Caller', dead:'Out', eliminated:'was removed', none:'Nobody was removed.', palette:{siteTop:'#27384c',siteMid:'#111820',siteBottom:'#090d12',siteText:'#eef6ff',topbar:'#101722cc',topbarBorder:'#33465e',panelA:'#9ec1e1',panelB:'#d1e5f7',panelBorder:'#596673',panelText:'#24334a',accent:'#ffd15d',buttonBg:'#d7e8fa',buttonText:'#142033',cardBg:'#edf6ff',adminCardBg:'#e9f4ff'}};
+
+      render();
+    }
+
+    function emergencyFlash(){
+      const panel = document.getElementById('meetingPanel');
+      panel.classList.remove('flash');
+      void panel.offsetWidth;
+      panel.classList.add('flash');
+    }
+
+    function renderAdmin(){
+      const used = new Set(players.map(p => p.colour));
+      const grid = document.getElementById('adminGrid');
+      grid.innerHTML = players.map((p, index) => {
+        const c = colourByName(p.colour);
+        const options = COLOURS.map(col => `<option value="${col.name}" ${(used.has(col.name)&&col.name!==p.colour)?'disabled':''} ${col.name===p.colour?'selected':''}>${col.name}</option>`).join('');
+        return `<section class="admin-card" style="--crew:${c.hex}">
+          <img src="${escapeAttr(p.photoUrl || placeholder(p.name))}" onerror="this.src='${placeholder('broken')}'" />
+          <label>Name<input data-name="${p.id}" value="${escapeAttr(p.name || `Player ${index+1}`)}"></label>
+          <label>Photo URL<input data-photo="${p.id}" value="${escapeAttr(p.photoUrl || '')}" placeholder="https://..."></label>
+          <label>Upload Image<input data-upload="${p.id}" type="file" accept="image/*"></label>
+          <label>Colour<select data-colour="${p.id}">${options}</select></label>
+          <label class="check-row"><input type="checkbox" data-dead="${p.id}" ${p.dead?'checked':''}> ${theme().dead} / cannot vote</label>
+          <div class="admin-actions">
+            <button data-setcaller="${p.id}" ${p.dead?'disabled':''}>${calledById===p.id?'Meeting caller':'Set caller'}</button>
+            <button class="good" data-revive="${p.id}" ${!p.dead?'disabled':''}>Revive</button>
+            <button class="danger" data-delete="${p.id}">Delete</button>
+          </div>
+        </section>`;
+      }).join('');
+      grid.querySelectorAll('[data-name]').forEach(el => el.onchange = () => updatePlayer(el.dataset.name,{name:el.value.trim() || 'Player'}));
+      grid.querySelectorAll('[data-photo]').forEach(el => el.onchange = () => updatePlayer(el.dataset.photo,{photoUrl:el.value.trim()}));
+      grid.querySelectorAll('[data-upload]').forEach(el => el.onchange = () => uploadPlayerImage(el.dataset.upload, el.files[0]));
+      grid.querySelectorAll('[data-colour]').forEach(el => el.onchange = () => updatePlayer(el.dataset.colour,{colour:el.value}));
+      grid.querySelectorAll('[data-dead]').forEach(el => el.onchange = () => updatePlayer(el.dataset.dead,{dead:el.checked, voteFor:null}));
+      grid.querySelectorAll('[data-revive]').forEach(el => el.onclick = () => updatePlayer(el.dataset.revive,{dead:false, voteFor:null}));
+      grid.querySelectorAll('[data-setcaller]').forEach(el => el.onclick = () => {
+        const player = players.find(p => p.id === el.dataset.setcaller);
+        if(player?.dead) return;
+        calledById = el.dataset.setcaller;
+        emergencyFlash();
+        render();
+      });
+      grid.querySelectorAll('[data-delete]').forEach(el => el.onclick = () => deletePlayer(el.dataset.delete));
+    }
+
+    function uploadPlayerImage(id, file){
+      if(!file) return;
+
+      if(!file.type.startsWith('image/')){
+        alert('Please choose an image file.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => updatePlayer(id, {photoUrl: reader.result});
+      reader.onerror = () => alert('Could not read that image file.');
+      reader.readAsDataURL(file);
+    }
+
+    function updatePlayer(id, patch, rerender=true){
+      if(patch.colour && players.some(p => p.id !== id && p.colour === patch.colour)){ alert('That colour is already taken.'); return; }
+      players = players.map(p => p.id === id ? {...p, ...patch} : p);
+      save();
+      if(rerender) render(); else renderPlayers();
+    }
+
+    function deletePlayer(id){
+      players = players.filter(p => p.id !== id).map(p => p.voteFor === id ? {...p, voteFor:null} : p);
+      if(selectedPlayerId === id) selectedPlayerId = players[0]?.id;
+      if(calledById === id) calledById = players[0]?.id;
+      render();
+    }
+
+    function addPlayer(){
+      const used = new Set(players.map(p => p.colour));
+      const colour = COLOURS.find(c => !used.has(c.name));
+      if(!colour){ alert('All colours are already used in this lobby.'); return; }
+      const playerNumber = players.length + 1;
+      players.push({ id:uid(), name:`Player ${playerNumber}`, photoUrl:defaultAvatar(`Player ${playerNumber}`), colour:colour.name, voteFor:null, dead:false });
+      render();
+    }
+
+    function randomiseColours(){
+      const shuffled = [...COLOURS].sort(() => Math.random() - 0.5);
+      players = players.map((p, i) => ({...p, colour:shuffled[i % shuffled.length].name}));
+      render();
+    }
+
+
+    function buildExportData(){
+      return {
+        app:'Visual Voting Lobby',
+        version:APP_EXPORT_VERSION,
+        exportedAt:new Date().toISOString(),
+        players,
+        selectedPlayerId,
+        calledById,
+        anonymous,
+        showResults,
+        meetingActive:false,
+        votingSeconds,
+        secondsLeft:votingSeconds,
+        currentTheme,
+        currentMode,
+        resultText:'',
+        customTheme:THEMES.custom
+      };
+    }
+
+    function exportSettings(){
+      const data = buildExportData();
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const stamp = new Date().toISOString().slice(0,19).replace(/[:T]/g, '-');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `visual-voting-settings-${stamp}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importSettingsFromFile(file){
+      if(!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const data = JSON.parse(reader.result);
+
+          if(!data || data.app !== 'Visual Voting Lobby' || !Array.isArray(data.players)){
+            alert('That does not look like a Visual Voting Lobby settings file.');
+            return;
+          }
+
+          clearInterval(timerId);
+          timerId = null;
+
+          players = data.players.map((p, i) => ({
+            id:p.id || uid(),
+            name:p.name || `Player ${i+1}`,
+            photoUrl:p.photoUrl || defaultAvatar(`Player ${i+1}`),
+            colour:p.colour || COLOURS[i % COLOURS.length].name,
+            voteFor:null,
+            dead:!!p.dead
+          }));
+
+          if(data.customTheme){
+            THEMES.custom = data.customTheme;
+            localStorage.setItem('visualVoteCustomTheme', JSON.stringify(THEMES.custom));
+          }
+
+          currentTheme = THEMES[data.currentTheme] ? data.currentTheme : 'amongus';
+          currentMode = MODES[data.currentMode] ? data.currentMode : 'classic';
+          votingSeconds = Math.max(10, Math.min(600, Number(data.votingSeconds) || 60));
+          secondsLeft = votingSeconds;
+          selectedPlayerId = players.find(p => p.id === data.selectedPlayerId && !p.dead)?.id || players.find(p => !p.dead)?.id || players[0]?.id;
+          calledById = players.find(p => p.id === data.calledById && !p.dead)?.id || selectedPlayerId;
+          anonymous = !!data.anonymous;
+          showResults = data.showResults !== false;
+          meetingActive = false;
+          resultText = '';
+
+          save();
+          render();
+          alert('Settings imported successfully.');
+        }catch(err){
+          alert('Could not import settings. Please choose a valid JSON export file.');
+        }finally{
+          document.getElementById('importSettingsFile').value = '';
+        }
+      };
+      reader.onerror = () => alert('Could not read that file.');
+      reader.readAsText(file);
+    }
+
+
+    function escapeHtml(str){ return String(str).replace(/[&<>'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s])); }
+    function escapeAttr(str){ return escapeHtml(str); }
+
+    document.getElementById('playTab').onclick = () => {
+      document.getElementById('playView').classList.remove('hidden');
+      document.getElementById('adminView').classList.add('hidden');
+      document.getElementById('playTab').classList.add('active');
+      document.getElementById('adminTab').classList.remove('active');
+    };
+    document.getElementById('adminTab').onclick = () => {
+      document.getElementById('adminView').classList.remove('hidden');
+      document.getElementById('playView').classList.add('hidden');
+      document.getElementById('adminTab').classList.add('active');
+      document.getElementById('playTab').classList.remove('active');
+    };
+    document.getElementById('selectedPlayer').onchange = e => { selectedPlayerId = e.target.value; render(); };
+    document.getElementById('startBtn').onclick = startVote;
+    document.getElementById('endBtn').onclick = endVote;
+    document.getElementById('anonymousBtn').onclick = () => { anonymous = !anonymous; render(); };
+    document.getElementById('resultsBtn').onclick = () => { showResults = !showResults; render(); };
+    document.getElementById('resetBtn').onclick = resetVotes;
+    document.getElementById('addUserBtn').onclick = addPlayer;
+    document.getElementById('randomColoursBtn').onclick = randomiseColours;
+    document.getElementById('exportSettingsBtn').onclick = exportSettings;
+    document.getElementById('importSettingsBtn').onclick = () => document.getElementById('importSettingsFile').click();
+    document.getElementById('importSettingsFile').onchange = e => importSettingsFromFile(e.target.files[0]);
+    document.getElementById('saveCustomThemeBtn').onclick = saveCustomTheme;
+    document.getElementById('copyCurrentThemeBtn').onclick = copyCurrentTheme;
+    document.getElementById('adminResetDefaultsBtn').onclick = resetToDefaults;
+    document.getElementById('themeSelect').onchange = e => {
+      currentTheme = e.target.value;
+      resultText = '';
+      render();
+    };
+    document.getElementById('modeSelect').onchange = e => {
+      currentMode = e.target.value;
+      if(currentMode === 'hidden' || currentMode === 'secret') showResults = false;
+      render();
+    };
+    document.getElementById('voteSeconds').onchange = e => {
+      votingSeconds = Math.max(10, Math.min(600, Number(e.target.value) || 60));
+      if(!meetingActive) secondsLeft = votingSeconds;
+      render();
+    };
+    render();
+  </script>
+
+
+</body></html>
